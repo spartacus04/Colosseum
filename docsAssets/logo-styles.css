@@ -9,7 +9,7 @@
 
 .library-name a::before {
     content: '';
-    background-image: url('../images/icon.png');
+    background-image: url('../images/icon.webp');
     background-size: contain;
     background-repeat: no-repeat;
     position: absolute;
