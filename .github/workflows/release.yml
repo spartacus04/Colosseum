@@ -37,6 +37,12 @@ jobs:
         env:
           version: ${{ env.VERSION }}
 
+      - name: Publish package
+        run: ./gradlew publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ github.sha }}
+
         # Attach output to release
       - name: Attach artifact to release
         id: upload-release-asset

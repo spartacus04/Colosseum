@@ -39,6 +39,12 @@ jobs:
           name: "Colosseum-${{ github.sha }}.jar"
           path: ./build/libs/Colosseum-${{ github.sha }}.jar
 
+      - name: Publish package
+        run: ./gradlew publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ github.sha }}
+
   publishDocs:
     needs: build
     runs-on: ubuntu-latest
