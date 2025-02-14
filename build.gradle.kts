@@ -81,7 +81,7 @@ publishing {
             url = uri("https://maven.pkg.github.com/spartacus04/Colosseum")
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_GITHUB_TOKEN")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }
