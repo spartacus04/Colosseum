@@ -61,7 +61,7 @@ dokka {
     pluginsConfiguration.html {
         customStyleSheets.from(file("docsAssets/logo-styles.css"))
         customAssets.from(file("icon.webp"))
-        footerMessage = "Colosseum is licensed under the <a href=\"https://github.com/spartacus04/Colosseum/blob/master/LICENSE.MD\">MIT</a> License."
+        footerMessage = "Colosseum is licensed under the <a href=\"https://github.com/spartacus04/Colosseum/blob/master/LICENSE\">MIT</a> License."
 
     }
 }
