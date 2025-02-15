@@ -69,10 +69,10 @@ open class FileBind(@Transient private val filePath: String, @Transient private 
             if(!field.isAnnotationPresent(ConfigField::class.java)) return@forEach
 
             val serializedName = if(field.isAnnotationPresent(SerializedName::class.java)) field.getAnnotation(SerializedName::class.java).value else field.name
-            val field = field.getAnnotation(ConfigField::class.java)
+            val configField = field.getAnnotation(ConfigField::class.java)
 
-            if(!text.contains("\"${field.name}\"")) return@forEach
-            text.replaceFirst("(?m)^\\s*\"$serializedName\"".toRegex(), "\n    // ${field.description} (Default value: ${field.defaultValue})\n    \"$serializedName\"")
+            if(!text.contains("\"${serializedName}\"")) return@forEach
+            text.replaceFirst("(?m)^\\s*\"$serializedName\"".toRegex(), "\n    // ${configField.description} (Default value: ${configField.defaultValue})\n    \"$serializedName\"")
         }
 
         if(!plugin.dataFolder.exists()) plugin.dataFolder.mkdirs()
