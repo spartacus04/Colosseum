@@ -11,7 +11,8 @@ import java.util.jar.JarFile
 
 open class ColosseumI18nManager(val plugin: Plugin, prefix: String, private val languagesPath: String = "langs/", debugMode: Boolean = false) : PluginLogger(debugMode, prefix) {
     private val i18nMap = HashMap<String, Map<String, String>>()
-    private val defaultLanguage = "en_US"
+    private val defaultLanguage = "en_us"
+    private val defaultLanguageFile = "en_US"
 
     /**
      * If set to a language code, the plugin will use this language instead of detecting it automatically.
@@ -40,7 +41,7 @@ open class ColosseumI18nManager(val plugin: Plugin, prefix: String, private val 
         val mapType = object : TypeToken<Map<String, String>>() {}.type
 
         if(!customFile.exists()) {
-            plugin.getResource("$languagesPath$defaultLanguage.json")!!.bufferedReader().use {
+            plugin.getResource("$languagesPath$defaultLanguageFile.json")!!.bufferedReader().use {
                 customFile.createNewFile()
                 customFile.writeText(it.readText())
             }
