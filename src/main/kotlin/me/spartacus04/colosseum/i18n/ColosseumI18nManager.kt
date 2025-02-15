@@ -46,8 +46,8 @@ open class ColosseumI18nManager(val plugin: Plugin, prefix: String, private val 
             }
         }
 
-        customFile.bufferedReader().use {
-            val languageMap : HashMap<String, String> = GSON.fromJson(it.readText(), mapType)
+        customFile.bufferedReader().use { bufferedReader ->
+            val languageMap : HashMap<String, String> = GSON.fromJson(bufferedReader.readText(), mapType)
 
             i18nMap[defaultLanguage]!!.keys.forEach {
                 if(!languageMap.contains(it)) {

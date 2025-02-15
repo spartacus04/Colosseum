@@ -49,6 +49,6 @@ class MinecraftServerVersion(plugin: Plugin) : SemVersion(plugin.server.bukkitVe
          * The current Minecraft version.
          */
         val current: MinecraftServerVersion
-            get() = MinecraftServerVersion(Bukkit.getPluginManager().getPlugin("Colosseum")!!)
+            get() = MinecraftServerVersion(Bukkit.getPluginManager().plugins.first())
     }
 }
