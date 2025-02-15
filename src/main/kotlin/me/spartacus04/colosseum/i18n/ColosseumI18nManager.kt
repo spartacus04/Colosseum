@@ -38,7 +38,7 @@ open class ColosseumI18nManager(val plugin: Plugin, prefix: String, private val 
      */
     fun loadCustomLanguageFile() {
         val customFile = plugin.dataFolder.resolve("lang.json")
-        val mapType = object : TypeToken<Map<String, String>>() {}.type
+        val hashMapType = object : TypeToken<HashMap<String, String>>() {}.type
 
         if(!customFile.exists()) {
             plugin.getResource("$languagesPath$defaultLanguageFile.json")!!.bufferedReader().use {
@@ -48,7 +48,7 @@ open class ColosseumI18nManager(val plugin: Plugin, prefix: String, private val 
         }
 
         customFile.bufferedReader().use { bufferedReader ->
-            val languageMap : HashMap<String, String> = GSON.fromJson(bufferedReader.readText(), mapType)
+            val languageMap : HashMap<String, String> = GSON.fromJson(bufferedReader.readText(), hashMapType)
 
             i18nMap[defaultLanguage]!!.keys.forEach {
                 if(!languageMap.contains(it)) {
