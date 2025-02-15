@@ -17,7 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin
  * @property plugin The plugin that the command is registered to.
  * @property i18nManager The i18n manager for the plugin.
  */
-abstract class ColosseumExecutor(val commandString: String, val subCommandString: String = commandString, private val plugin: JavaPlugin, val i18nManager: ColosseumI18nManager) : CommandExecutor, TabCompleter {
+abstract class ColosseumExecutor(val commandString: String, val subCommandString: String = commandString, val plugin: JavaPlugin, val i18nManager: ColosseumI18nManager) : CommandExecutor, TabCompleter {
 
     /**
      * The parameters for the command.

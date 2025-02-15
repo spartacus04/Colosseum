@@ -8,7 +8,7 @@ import org.bukkit.plugin.Plugin
 /**
  * Represents a listener for the spigot API that can be registered and unregistered.
  */
-class ColosseumListener(private val plugin: Plugin, private val minVersion: MinecraftServerVersion? = null) : Listener, InterfaceColosseumListener {
+open class ColosseumListener(private val plugin: Plugin, private val minVersion: MinecraftServerVersion? = null) : Listener, InterfaceColosseumListener {
     override fun register() {
         if(minVersion == null || MinecraftServerVersion.current >= minVersion) {
             plugin.server.pluginManager.registerEvents(this, plugin)

@@ -10,7 +10,7 @@ import org.bukkit.plugin.Plugin
 /**
  * Represents a packet listener for the plugin that can be registered and unregistered. Requires ProtocolLib.
  */
-class ColosseumPacketListener(private val plugin: Plugin, private val minVersion: MinecraftServerVersion? = null, listenerPriority: ListenerPriority = ListenerPriority.NORMAL, packetType: PacketType) : PacketAdapter(plugin, listenerPriority, packetType), InterfaceColosseumListener {
+open class ColosseumPacketListener(private val plugin: Plugin, private val minVersion: MinecraftServerVersion? = null, listenerPriority: ListenerPriority = ListenerPriority.NORMAL, packetType: PacketType) : PacketAdapter(plugin, listenerPriority, packetType), InterfaceColosseumListener {
     override fun register() {
         if(minVersion == null || MinecraftServerVersion.current >= minVersion) {
             ProtocolLibrary.getProtocolManager().addPacketListener(this)
