@@ -25,13 +25,7 @@ open class FileBind(@Transient private val filePath: String, @Transient private 
             save()
         }
 
-        val obj = GSON.fromJson(file.readText(), clazz)
-
-        obj.javaClass.declaredFields.forEach { field ->
-            field.isAccessible = true
-
-            field.set(this, field.get(obj))
-        }
+        parseFromJson(file.readText())
     }
 
     /**
@@ -41,7 +35,7 @@ open class FileBind(@Transient private val filePath: String, @Transient private 
      *
      * @return Returns true if the text was successfully read, otherwise false.
      */
-    fun fromText(text: String) : Boolean {
+    fun parseFromJson(text: String) : Boolean {
         try {
             val obj = GSON.fromJson(text, clazz)
 

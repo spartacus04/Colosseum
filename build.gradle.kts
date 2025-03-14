@@ -26,6 +26,7 @@ repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.dmulloy2.net/nexus/repository/public/")
+    maven("https://libraries.minecraft.net")
 }
 
 dependencies {
@@ -37,8 +38,8 @@ dependencies {
     }
 
     implementation("com.google.code.gson:gson:2.12.1")
-
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
+    compileOnly("com.mojang:brigadier:1.0.18")
 }
 
 group = "me.spartacus04.colosseum"

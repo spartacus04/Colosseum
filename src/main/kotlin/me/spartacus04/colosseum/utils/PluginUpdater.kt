@@ -15,7 +15,7 @@ import java.net.URI
  * @property repo The GitHub repository url.
  * @property pluginLogger The plugin logger.
  */
-class PluginUpdater(private val plugin: Plugin, private val repo: String, private val pluginLogger: PluginLogger) {
+class PluginUpdater(private val plugin: Plugin, private val repo: String, private val pluginLogger: PluginLogger? = null) {
     /**
      * Checks for updates and runs the consumer with the latest version.
      *
@@ -30,10 +30,10 @@ class PluginUpdater(private val plugin: Plugin, private val repo: String, privat
                 }
 
                 val version = Regex("\"tag_name\": ?\"([^\"]+)\"").find(text)?.groupValues?.get(1)!!
-                pluginLogger.debug("Latest version: $version")
+                pluginLogger?.debug("Latest version: $version")
                 consumer(version)
             } catch (exception: IOException) {
-                pluginLogger.warn("Unable to check for updates: " + exception.message)
+                pluginLogger?.warn("Unable to check for updates: " + exception.message)
             }
         }
     }

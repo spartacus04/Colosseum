@@ -15,6 +15,19 @@ class MinecraftServerVersion(plugin: Plugin) : SemVersion(plugin.server.bukkitVe
     val branding: String = plugin.server.version
 
     /**
+     * The server revision.
+     */
+    val revision: String = run {
+        for(revision in MinecraftRevisions.entries) {
+            if(this >= revision.version) {
+                return@run revision.packageName
+            }
+        }
+
+        throw UnsupportedOperationException("This server version is not supported.")
+    }
+
+    /**
      * Whether the server is running Paper.
      */
     val isPaper: Boolean

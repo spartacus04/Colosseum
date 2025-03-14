@@ -1,154 +1,135 @@
 package me.spartacus04.colosseum.i18n
 
-import com.google.gson.reflect.TypeToken
 import me.spartacus04.colosseum.logging.PluginLogger
-import me.spartacus04.colosseum.utils.Gson.GSON
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.plugin.Plugin
-import java.io.File
-import java.util.jar.JarFile
 
-open class ColosseumI18nManager(val plugin: Plugin, prefix: String, private val languagesPath: String = "langs/", debugMode: Boolean = false) : PluginLogger(debugMode, prefix) {
-    private val i18nMap = HashMap<String, Map<String, String>>()
-    private val defaultLanguage = "en_us"
-    private val defaultLanguageFile = "en_US"
+/**
+ * A class that manages a plugin's i18n. This handles static and dynamic languages.
+ * Static languages are languages that never change and are usually loaded from the plugin jar.
+ * Dynamic languages are languages that can change at runtime and are usually loaded from a database or file.
+ * The plugin will cache dynamic languages to prevent unnecessary loading, and will reload them when invalidated.
+ * When a message is requested, the plugin will first check the cached dynamic languages, then the dynamic languages, and finally the static languages.
+ * If the get method is called with a CommandSender, the plugin will use the forced language if it is set, otherwise it will use the player's locale.
+ * If the player's locale is not found, the default language will be used. If the command sender is not a player, the default language will be used.
+ *
+ * @property staticLanguages The static languages.
+ * @property dynamicLanguages The dynamic languages.
+ * @property defaultLanguage The default language.
+ * @property forcedLanguage The language to force for players.
+ * @property debugMode Enables debug mode.
+ * @property prefix The prefix of each message.
+ */
+class ColosseumI18nManager internal constructor(
+    private val staticLanguages: Map<String, Map<String, String>>,
+    private val dynamicLanguages: Map<String, () -> Map<String, String>>,
+    private val defaultLanguage: String,
+    private var forcedLanguage: String?,
+    debugMode: Boolean,
+    prefix: String
+) {
+    private val cachedDynamicLanguages = mutableMapOf<String, Map<String, String>>()
+    private val pluginLogger = PluginLogger(debugMode, prefix)
 
     /**
-     * If set to a language code, the plugin will use this language instead of detecting it automatically.
+     * Sets the forced language for the plugin.
+     * @param lang The language to force.
      */
-    var forceLanguage: String? = null
-
-    /**
-     * If set to true, the plugin will use the custom language file from the plugin data folder.
-     */
-    var customMode: Boolean = false
-        set(value) {
-            if(value) {
-                loadCustomLanguageFile()
-            }
-            field = value
-        }
-
-    /**
-     * Loads the custom language file from the plugin data folder.
-     *
-     * If the file does not exist, it will be created and filled with the default language file.
-     * If the file is outdated, it will be updated with the new keys from the default language file.
-     */
-    fun loadCustomLanguageFile() {
-        val customFile = plugin.dataFolder.resolve("lang.json")
-        val hashMapType = object : TypeToken<HashMap<String, String>>() {}.type
-
-        if(!customFile.exists()) {
-            plugin.getResource("$languagesPath$defaultLanguageFile.json")!!.bufferedReader().use {
-                customFile.createNewFile()
-                customFile.writeText(it.readText())
-            }
-        }
-
-        customFile.bufferedReader().use { bufferedReader ->
-            val languageMap : HashMap<String, String> = GSON.fromJson(bufferedReader.readText(), hashMapType)
-
-            i18nMap[defaultLanguage]!!.keys.forEach {
-                if(!languageMap.contains(it)) {
-                    languageMap[it] = i18nMap[defaultLanguage]!![it]!!
-                }
-            }
-
-            customFile.writeText(GSON.toJson(languageMap))
-            i18nMap["custom"] = languageMap
-            debug("Loaded custom language file")
-        }
+    fun setForcedLanguage(lang: String?) {
+        forcedLanguage = lang
     }
 
     /**
-     * Loads all languages found in the plugin resources at the specified path.
+     * Invalidates the cached dynamic languages.
+     * This should be called when a dynamic language is updated.
+     * This will force the plugin to reload the dynamic language.
      */
-    fun loadLanguagesFromResources() {
-        val jarFile = JarFile(File(javaClass.protectionDomain.codeSource.location.path).absolutePath.replace("%20", " "))
+    fun invalidateDynamicLanguages() = cachedDynamicLanguages.clear()
 
-        jarFile.entries().asSequence().filter { it.name.startsWith(languagesPath) && it.name.endsWith(".json") }.forEach {
-            val langName = it.name.replaceFirst(languagesPath, "")
-
-            plugin.getResource("$languagesPath$langName")!!.bufferedReader().use {file ->
-                val mapType = object : TypeToken<Map<String, String>>() {}.type
-                val languageMap : Map<String, String> = GSON.fromJson(file.readText(), mapType)
-
-                i18nMap[langName.replace(".json", "").lowercase()] = languageMap
-                debug("Loaded language file: $langName")
-            }
-        }
-
-        jarFile.close()
+    /**
+     * Checks if the specified language is available.
+     */
+    fun hasLanguage(lang: String): Boolean {
+        return staticLanguages.containsKey(lang) || dynamicLanguages.containsKey(lang)
     }
 
     /**
-     * Checks if the plugin has a specified language loaded.
+     * Gets the language map for the specified language.
      *
-     * @param language The language to check for.
+     * @param lang The language to get the map for.
+     * @return The language map or null if the language is not found.
      */
-    fun hasLanguage(language: String) = i18nMap.containsKey(language)
+    operator fun get(lang: String): Map<String, String>? {
+        if(cachedDynamicLanguages.contains(lang)) {
+            pluginLogger.debug("Returning cached language: $lang")
+            return cachedDynamicLanguages[lang]!!
+        }
+
+        if(dynamicLanguages.containsKey(lang)) {
+            pluginLogger.debug("Loading and caching dynamic language: $lang")
+            val language = dynamicLanguages[lang]!!()
+            cachedDynamicLanguages[lang] = language
+            pluginLogger.debug("Loaded and cached dynamic language: $lang")
+            return language
+        }
+
+        return staticLanguages[lang]
+    }
 
     /**
-     * Gets a message from the language file. If the language is not found, the default language will be used.
-     * If the key is not found in the default language, an error message will be returned.
+     * Gets a message from the language file, for a specific language.
      *
-     * @param language The language to get the message from.
+     * @param lang The language to get the message from.
      * @param key The key of the message.
-     * @return The message.
+     * @return The message or null if the language or key is not found.
      */
-    operator fun get(language: String, key: String): String {
-        if(!hasLanguage(language)) {
-            debug("Language $language not found, using default language")
-
-            val lang = i18nMap[defaultLanguage]!!
-
-            if(!lang.containsKey(key)) {
-                error("Key $key not found in default language file")
-                return messageFormatter.error("Key $key not found in language file")
-            }
-        }
-
-        if(!i18nMap[language]!!.containsKey(key)) {
-            error("Key $key not found in language file")
-            return messageFormatter.error("Key $key not found in language file")
-        }
-
-        return i18nMap[language]!![key]!!
+    operator fun get(lang: String, key: String): String? {
+        return get(lang)?.get(key)
     }
 
     /**
-     * Gets a formatted message from the language file. If the language is not found, the default language will be used.
-     * If the key is not found in the default language, an error message will be returned.
+     * Gets a message from the language file, for a specific language.
+     * Placeholders in the message will be replaced with the specified values.
+     *
+     * @param lang The language to get the message from.
+     * @param key The key of the message.
+     * @param placeholders The placeholders to replace in the message.
+     */
+    operator fun get(lang: String, key: String, vararg placeholders: Pair<String, String>): String? {
+        return get(lang, key)?.let { message ->
+            replacePlaceholders(message, placeholders.toMap())
+        }
+    }
+
+    /**
+     * Gets a message from the language file, for a specific language.
      * Placeholders in the message will be replaced with the specified values.
      * If the command sender is a player, the message will be formatted based on the player's locale, else the default language will be used.
-     * If the custom mode is enabled, the custom language file will be used.
-     * If the force language is set, that language will be used.
      *
      * @param commandSender The entity that executed the command.
      * @param key The key of the message.
-     * @param params The placeholders to replace in the message.
-     * @return The formatted message.
+     * @param placeholders The placeholders to replace in the message.
      */
-    fun getFormatted(commandSender: CommandSender, key: String, params: Map<String, String> = emptyMap()): String {
-        if(commandSender !is Player) {
-            return replacePlaceholders(get(defaultLanguage, key), params)
+    operator fun get(commandSender: CommandSender, key: String, vararg placeholders: Pair<String, String>): String? {
+        val lang = if(commandSender is Player) {
+            if(forcedLanguage?.let { hasLanguage(it) } == true) {
+                forcedLanguage!!
+            } else if(hasLanguage(commandSender.locale)) {
+                commandSender.locale
+            } else {
+                defaultLanguage
+            }
+        } else {
+            defaultLanguage
         }
 
-        return if(customMode) {
-            replacePlaceholders(get("custom", key), params)
-        } else if(forceLanguage != null) {
-            replacePlaceholders(get(forceLanguage!!, key), params)
-        } else {
-            @Suppress("DEPRECATION")
-            replacePlaceholders(get(commandSender.locale, key), params)
-        }
+        return get(lang, key, *placeholders)
     }
 
     companion object {
         /**
          * Replaces placeholders in a message with the specified values.
+         * EG: replacePlaceholders("Hello, %name%!", mapOf("name" to "Spartacus04")) -> "Hello, Spartacus04!"
          *
          * @param message The message to replace the placeholders in.
          * @param placeholders The placeholders to replace.
