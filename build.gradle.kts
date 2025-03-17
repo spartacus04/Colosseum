@@ -1,12 +1,11 @@
-import org.jetbrains.dokka.gradle.DokkaTaskPartial
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.dokka.DokkaConfiguration.Visibility
 
 plugins {
     java
     kotlin("jvm") version "2.1.10"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+
     id("org.jetbrains.dokka") version "2.0.0"
+
     `maven-publish`
 }
 
@@ -14,51 +13,42 @@ buildscript {
     repositories {
         mavenCentral()
     }
-
     dependencies {
         classpath("org.jetbrains.dokka:dokka-base:2.0.0")
+        classpath("com.guardsquare:proguard-gradle:7.6.1") {
+            exclude("com.android.tools.build")
+        }
     }
 }
 
-allprojects {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        maven("https://repo.papermc.io/repository/maven-public/")
-        maven("https://repo.dmulloy2.net/nexus/repository/public/")
-        maven("https://libraries.minecraft.net")
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.dmulloy2.net/nexus/repository/public/")
+    maven("https://libraries.minecraft.net")
+}
+
+dependencies {
+    compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
+    compileOnly("dev.folia:folia-api:1.21.4-R0.1-SNAPSHOT") {
+        attributes {
+            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 21)
+        }
     }
+
+    implementation("com.google.code.gson:gson:2.12.1")
+    compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
+    compileOnly("com.mojang:brigadier:1.0.500")
 }
 
 group = "me.spartacus04.colosseum"
+
 version = System.getenv("version") ?: "dev"
+
 description = "colosseum-api"
-
-dependencies {
-    implementation(project(":core"))
-}
-
 java.targetCompatibility = JavaVersion.VERSION_1_8
 java.sourceCompatibility = JavaVersion.VERSION_1_8
-
-tasks {
-    shadowJar {
-        archiveFileName.set("${rootProject.name}_${project.version}-shadowed.jar")
-        val dependencyPackage = "${rootProject.group}.dependencies.${rootProject.name.lowercase()}"
-        from(subprojects.map { it.sourceSets.main.get().output })
-
-        relocate("kotlin", "${dependencyPackage}.kotlin")
-        relocate("com/google/gson", "${dependencyPackage}.gson")
-        relocate("org/jetbrains/annotations", "${dependencyPackage}.annotations")
-
-        exclude("colors.bin")
-        exclude("ScopeJVMKt.class")
-        exclude("DebugProbesKt.bin")
-        exclude("META-INF/**")
-
-        minimize()
-    }
-}
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     compilerOptions {
@@ -67,63 +57,32 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 // publish
-subprojects {
-    apply(plugin = "org.jetbrains.dokka")
 
-    tasks.withType<DokkaTaskPartial>().configureEach {
-        dokkaSourceSets.configureEach {
-            documentedVisibilities.set(setOf(
-                Visibility.PUBLIC,
-                Visibility.PROTECTED
-            ))
-        }
+dokka {
+    pluginsConfiguration.html {
+        customStyleSheets.from(file("docsAssets/logo-styles.css"))
+        customAssets.from(file("icon.webp"))
+        footerMessage = "Colosseum is licensed under the <a href=\"https://github.com/spartacus04/Colosseum/blob/master/LICENSE\">MIT</a> License."
     }
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = rootProject.group.toString()
+            artifactId = rootProject.name.lowercase()
+            version = "${rootProject.version}"
 
-allprojects {
-    apply(plugin = "maven-publish")
-
-    afterEvaluate {
-        publishing {
-            publications {
-                create<MavenPublication>("maven") {
-                    if(project == rootProject) {
-                        artifact(tasks.shadowJar)
-                    } else {
-                        from(components["kotlin"])
-                    }
-
-                    pom {
-                        name = project.name
-                        description = project.description
-                        url = "https://github.com/spartacus04/Colosseum"
-
-                        scm {
-                            connection = "scm:git@github.com:spartacus04/Colosseum.git"
-                            developerConnection = "scm:git@github.com:spartacus04/Colosseum.git"
-                            url = "https://github.com/spartacus04/Colosseum"
-                        }
-
-                        licenses {
-                            license {
-                                name = "MIT License"
-                                url = "https://github.com/spartacus04/Colosseum/blob/master/LICENSE"
-                            }
-                        }
-                    }
-                }
-            }
-
-            repositories {
-                maven {
-                    name = "GitHubPackages"
-                    url = uri("https://maven.pkg.github.com/spartacus04/Colosseum")
-                    credentials {
-                        username = System.getenv("GITHUB_ACTOR")
-                        password = System.getenv("GITHUB_TOKEN")
-                    }
-                }
+            from(components["kotlin"])
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/spartacus04/Colosseum")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }
