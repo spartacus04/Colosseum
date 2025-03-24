@@ -19,7 +19,7 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.12.1")
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
-    compileOnly("com.mojang:brigadier:1.0.18")
+    compileOnly("com.mojang:brigadier:1.0.500")
 }
 
 java.targetCompatibility = JavaVersion.VERSION_1_8
