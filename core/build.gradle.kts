@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     java
-    kotlin("jvm") version "2.1.10"
+    kotlin("jvm") version "2.1.20"
 }
 
 group = "me.spartacus04.colosseum-core"
