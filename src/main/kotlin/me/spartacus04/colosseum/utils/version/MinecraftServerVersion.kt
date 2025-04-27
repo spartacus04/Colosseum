@@ -8,6 +8,7 @@ import org.bukkit.plugin.Plugin
  *
  * @property plugin The plugin instance.
  */
+@Suppress("unused")
 class MinecraftServerVersion(plugin: Plugin) : SemVersion(plugin.server.bukkitVersion.split("-")[0]) {
     /**
      * The server branding.
@@ -17,15 +18,7 @@ class MinecraftServerVersion(plugin: Plugin) : SemVersion(plugin.server.bukkitVe
     /**
      * The server revision.
      */
-    val revision: String = run {
-        for(revision in MinecraftRevisions.entries) {
-            if(this >= revision.version) {
-                return@run revision.packageName
-            }
-        }
-
-        throw UnsupportedOperationException("This server version is not supported.")
-    }
+    val revision: MinecraftRevisions = MinecraftRevisions.fromVersion(this)
 
     /**
      * Whether the server is running Paper.
@@ -56,6 +49,29 @@ class MinecraftServerVersion(plugin: Plugin) : SemVersion(plugin.server.bukkitVe
      */
     val isModern: Boolean
         get() = compareTo("1.13") >= 0
+
+    /**
+     * Checks if the current version is compatible with the given class.
+     *
+     * @param clazz The class to check against.
+     *
+     * @return True if the current version is compatible, false otherwise.
+     */
+    fun isRevisionAnnotationCompatible(clazz: Class<*>) : Boolean {
+        val annotation = clazz.getAnnotation(RevisionCompatibilityRange::class.java)
+
+        if (annotation != null) {
+            return this >= annotation.since.version && this <= annotation.until.version
+        }
+
+        val annotationMin = clazz.getAnnotation(RevisionCompatibilityMin::class.java)
+
+        if (annotationMin != null) {
+            return this >= annotationMin.since.version
+        }
+
+        return false
+    }
 
     companion object {
         /**
