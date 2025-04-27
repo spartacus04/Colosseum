@@ -12,4 +12,6 @@ It adds a few features such as:
 - Universal Scheduler for Spigot/Paper/Folia
 - Minecraft version utilities
 
+In the future I also plan to add a INVUI like gui system
+
 Unfortunately, I am too lazy to write a proper documentation, so you will have to figure out how to use it by yourself. You can check github pages for the javadocs, or you can check any of my plugins that use this API.
