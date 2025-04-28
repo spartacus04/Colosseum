@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
+    compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
     compileOnly("dev.folia:folia-api:1.21.4-R0.1-SNAPSHOT") {
         attributes {
             attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 21)
