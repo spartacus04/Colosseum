@@ -37,7 +37,7 @@ dependencies {
         }
     }
 
-    implementation("com.google.code.gson:gson:2.13.1")
+    implementation("com.google.code.gson:gson:2.13.2")
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
     compileOnly("com.mojang:brigadier:1.0.500")
 }
