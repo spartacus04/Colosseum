@@ -1,5 +1,6 @@
 package me.spartacus04.colosseum
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.Strictness
 import me.spartacus04.colosseum.commandHandling.ColosseumCommandRegistrant
@@ -16,9 +17,13 @@ import java.io.InputStreamReader
 import java.net.URI
 import java.util.logging.Logger
 
-class ColosseumPlugin() : JavaPlugin() {
+abstract class ColosseumPlugin() : JavaPlugin() {
     private val prefix = this.description.prefix ?: this.name
     private val isDebug = this.description.version.contains("dev")
+
+    init {
+        INSTANCE = this
+    }
 
     /**
      * The scheduler for the plugin. Used to run tasks asynchronously or synchronously.
@@ -113,6 +118,12 @@ class ColosseumPlugin() : JavaPlugin() {
         /**
          * Singleton GSON instance for the plugin.
          */
-        val GSON = GsonBuilder().setStrictness(Strictness.LENIENT).setPrettyPrinting().create()
+        val GSON: Gson = GsonBuilder().setStrictness(Strictness.LENIENT).setPrettyPrinting().create()
+
+        /**
+         * The singleton instance of the ColosseumPlugin.
+         */
+        var INSTANCE: ColosseumPlugin? = null
+            private set
     }
 }
