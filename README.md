@@ -1,17 +1,21 @@
-# Colosseum API - A simple API for Spigot/Paper/Folia plugins
+# Colosseum API
+>A Kotlin first Spigot/Paper/Folia plugin framework
 
-This small API is designed to make it easier to create plugins for Spigot, Paper and Folia.
+This API is designed to make it easier to create plugins for Spigot, Paper and Folia.
 It adds a few features such as:
-- Command handling
-- Event handling
-- Config handling
-- Language handling
-- Logging handling
-- Update checker
-- Singleton GSON instance
-- Universal Scheduler for Spigot/Paper/Folia
-- Minecraft version utilities
+- [x] Command handling
+- [x] Event handling
+- [x] Config handling
+- [x] Language handling
+- [x] Logging handling
+- [x] Update checker
+- [x] Singleton GSON instance
+- [x] Universal Scheduler for Spigot/Paper/Folia
+- [x] Minecraft version utilities
+- [ ] GUI system
 
-In the future I also plan to add a INVUI like gui system
+You can find all documentation [here](https://github.com/spartacus04/Colosseum/wiki)!
 
-Unfortunately, I am too lazy to write a proper documentation, so you will have to figure out how to use it by yourself. You can check github pages for the javadocs, or you can check any of my plugins that use this API.
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
