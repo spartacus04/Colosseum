@@ -3,7 +3,6 @@ package me.spartacus04.colosseum.commandHandling
 import me.spartacus04.colosseum.commandHandling.command.ColosseumCommand
 import me.spartacus04.colosseum.ColosseumPlugin
 import me.spartacus04.colosseum.commandHandling.command.ColosseumBaseCommand
-import org.bukkit.command.TabCompleter
 
 /**
  * A registrant for Colosseum commands that handles their registration based on server version compatibility.
@@ -14,7 +13,7 @@ class ColosseumCommandRegistrant(private val plugin: ColosseumPlugin) {
     /**
      * A mutable list of command classes to be registered.
      */
-    val commands: MutableList<Class<ColosseumCommand>> = mutableListOf()
+    val commands: MutableList<Class<out ColosseumCommand>> = mutableListOf()
     val registeredCommands: MutableList<ColosseumCommand> = mutableListOf()
 
     private var mainCommandName: String? = null
@@ -25,7 +24,7 @@ class ColosseumCommandRegistrant(private val plugin: ColosseumPlugin) {
      * @param command The command class to add.
      * @return The ColosseumCommandRegistrant instance for method chaining.
      */
-    fun addCommand(command: Class<ColosseumCommand>) = apply {
+    fun addCommand(command: Class<out ColosseumCommand>) = apply {
         commands.add(command)
     }
 
@@ -35,7 +34,7 @@ class ColosseumCommandRegistrant(private val plugin: ColosseumPlugin) {
      * @param commands The command classes to add.
      * @return The ColosseumCommandRegistrant instance for method chaining.
      */
-    fun addCommands(vararg commands: Class<ColosseumCommand>) = apply {
+    fun addCommands(vararg commands: Class<out ColosseumCommand>) = apply {
         this.commands.addAll(commands)
     }
 
