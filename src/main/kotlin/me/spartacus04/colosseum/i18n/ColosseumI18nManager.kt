@@ -28,13 +28,6 @@ class ColosseumI18nManager internal constructor(
     private val cachedDynamicLanguages = mutableMapOf<String, Map<String, String>>()
     private val pluginLogger = plugin.colosseumLogger
 
-    /**
-     * Sets the forced language for the plugin.
-     * @param lang The language to force.
-     */
-    fun setForcedLanguage(lang: String?) {
-        forcedLanguage = lang
-    }
 
     /**
      * Invalidates the cached dynamic languages.
