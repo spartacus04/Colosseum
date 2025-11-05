@@ -154,7 +154,6 @@ class ColosseumI18nManagerBuilder(private val plugin: ColosseumPlugin) {
             val langName = it.name.replaceFirst(path, "")
 
             parseLanguageFromJar("$path$langName", langName.replace(".json", ""))
-
         }
 
         jarFile.close()

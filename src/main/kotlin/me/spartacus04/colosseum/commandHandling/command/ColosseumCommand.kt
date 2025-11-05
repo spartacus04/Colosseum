@@ -1,6 +1,5 @@
 package me.spartacus04.colosseum.commandHandling.command
 
-import me.spartacus04.colosseum.commandHandling.argument.Argument
 import me.spartacus04.colosseum.commandHandling.exceptions.MalformedArgumentException
 import me.spartacus04.colosseum.commandHandling.exceptions.MalformedCommandException
 import me.spartacus04.colosseum.ColosseumPlugin
@@ -17,7 +16,6 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
-import org.bukkit.plugin.java.JavaPlugin
 
 /**
  * Abstract base class for Colosseum commands.
@@ -45,7 +43,7 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
         val permissions: Set<String>,
         val arguments: List<ParsableArgument<*>>,
         val optionalArguments: List<ParsableArgument<*>>,
-        val mcCommand: Command
+        val mcCommand: Command?
     ) {
         /**
          * Builder class for constructing CommandData instances.
@@ -55,22 +53,21 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
          *
          * @throws IllegalArgumentException if no command with the specified name is found in plugin.yml.
          */
-        class Builder(plugin: JavaPlugin, private val name: String) {
+        class Builder(plugin: ColosseumPlugin, private val name: String) {
             /**
              * Initialize the builder by retrieving command metadata from plugin.yml.
              */
-            val command = plugin.getCommand("name") ?:
-                throw IllegalArgumentException("No command with name '$name' found in plugin.yml")
+            val command = plugin.getCommand("name")
 
             /**
              * Properties for building CommandData.
              */
-            var aliases: Set<String> = command.aliases.toMutableSet()
+            var aliases: Set<String> = command?.aliases?.toMutableSet() ?: emptySet()
 
             /**
              * The description of the command.
              */
-            var description: String = command.description
+            var description: String = command?.description ?: ""
 
             /**
              * The name of the sub-command for nested commands usage, if any.

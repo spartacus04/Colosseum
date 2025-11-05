@@ -9,6 +9,6 @@ import me.spartacus04.colosseum.ColosseumPlugin
  * @param name The name of the base command.
  * @param subCommands A list of sub-commands under this base command.
  */
-class ColosseumBaseCommand(plugin: ColosseumPlugin, name: String, subCommands: List<ColosseumCommand>) : ColosseumNestedCommand(plugin, name, subCommands) {
+open class ColosseumBaseCommand(plugin: ColosseumPlugin, name: String, subCommands: List<ColosseumCommand>) : ColosseumNestedCommand(plugin, name, subCommands) {
     override val commandData = commandDescriptor(name) { }
 }

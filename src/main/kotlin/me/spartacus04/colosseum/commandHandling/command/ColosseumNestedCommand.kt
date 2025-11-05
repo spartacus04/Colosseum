@@ -42,6 +42,17 @@ abstract class ColosseumNestedCommand(val plugin: ColosseumPlugin, val name: Str
     }
 
     /**
+     * Constructs the command descriptor for the nested command using the class's name. This includes setting up
+     * the arguments to handle sub-commands and any additional arguments.
+     *
+     * @param init A lambda to initialize additional properties of the CommandData.Builder.
+     * @return The constructed CommandData for the nested command.
+     */
+    fun commandDescriptor(init: CommandData.Builder.() -> Unit): CommandData {
+        return commandDescriptor(name, init)
+    }
+
+    /**
      * Handles the execution of the nested command by delegating to the appropriate sub-command.
      *
      * @param sender The command sender.
