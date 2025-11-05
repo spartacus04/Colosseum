@@ -70,7 +70,23 @@ class MinecraftServerVersion(plugin: Plugin) : SemVersion(plugin.server.bukkitVe
             return this >= annotationMin.since.version
         }
 
-        return false
+        return true
+    }
+
+    fun isVersionAnnotationCompatible(clazz: Class<*>) : Boolean {
+        val annotation = clazz.getAnnotation(VersionCompatibilityRange::class.java)
+
+        if (annotation != null) {
+            return this >= annotation.since && this <= annotation.until
+        }
+
+        val annotationMin = clazz.getAnnotation(VersionCompatibilityMin::class.java)
+
+        if (annotationMin != null) {
+            return this >= annotationMin.since
+        }
+
+        return true
     }
 
     companion object {

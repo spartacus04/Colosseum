@@ -1,6 +1,6 @@
 package me.spartacus04.colosseum.i18n
 
-import me.spartacus04.colosseum.logging.PluginLogger
+import me.spartacus04.colosseum.ColosseumPlugin
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
@@ -17,19 +17,16 @@ import org.bukkit.entity.Player
  * @property dynamicLanguages The dynamic languages.
  * @property defaultLanguage The default language.
  * @property forcedLanguage The language to force for players.
- * @property debugMode Enables debug mode.
- * @property prefix The prefix of each message.
  */
 class ColosseumI18nManager internal constructor(
     private val staticLanguages: Map<String, Map<String, String>>,
     private val dynamicLanguages: Map<String, () -> Map<String, String>>,
     private val defaultLanguage: String,
     private var forcedLanguage: String?,
-    debugMode: Boolean,
-    prefix: String
+    plugin: ColosseumPlugin
 ) {
     private val cachedDynamicLanguages = mutableMapOf<String, Map<String, String>>()
-    private val pluginLogger = PluginLogger(debugMode, prefix)
+    private val pluginLogger = plugin.colosseumLogger
 
     /**
      * Sets the forced language for the plugin.
@@ -111,19 +108,29 @@ class ColosseumI18nManager internal constructor(
      * @param placeholders The placeholders to replace in the message.
      */
     operator fun get(commandSender: CommandSender, key: String, vararg placeholders: Pair<String, String>): String? {
-        val lang = if(commandSender is Player) {
-            if(forcedLanguage?.let { hasLanguage(it) } == true) {
-                forcedLanguage!!
-            } else if(hasLanguage(commandSender.locale)) {
-                commandSender.locale
-            } else {
-                defaultLanguage
-            }
+        val lang = getLocale(commandSender)
+
+        return get(lang, key, *placeholders)
+    }
+
+    /**
+     * Gets the appropriate locale for the command sender.
+     * If the command sender is a player, the forced language will be used if set and available, otherwise the player's
+     * locale will be used if available, else the default language will be used.
+     *
+     * @param commandSender The entity that executed the command.
+     * @return The appropriate locale for the command sender.
+     */
+    fun getLocale(commandSender: CommandSender) = if(commandSender is Player) {
+        if(forcedLanguage?.let { hasLanguage(it) } == true) {
+            forcedLanguage!!
+        } else if(hasLanguage(commandSender.locale)) {
+            commandSender.locale
         } else {
             defaultLanguage
         }
-
-        return get(lang, key, *placeholders)
+    } else {
+        defaultLanguage
     }
 
     companion object {

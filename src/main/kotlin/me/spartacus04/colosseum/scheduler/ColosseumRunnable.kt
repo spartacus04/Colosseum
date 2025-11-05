@@ -10,17 +10,33 @@ import kotlin.jvm.Throws
 abstract class ColosseumRunnable : Runnable {
     private var task: ScheduledTask? = null
 
+    /**
+     * Sets up the scheduled task.
+     *
+     * @param task the scheduled task
+     * @return the scheduled task
+     */
     private fun setupTask(task: ScheduledTask): ScheduledTask {
         this.task = task
         return task
     }
 
+    /**
+     * Checks if the task has been scheduled.
+     *
+     * @throws IllegalStateException if the task was not scheduled yet
+     */
     private fun checkScheduled() {
         if (task == null) {
             throw IllegalStateException("Not scheduled yet")
         }
     }
 
+    /**
+     * Checks if the task has not been scheduled yet.
+     *
+     * @throws IllegalStateException if the task was already scheduled
+     */
     private fun checkNotYetScheduled() {
         if (task != null) {
             throw IllegalStateException("Already scheduled")

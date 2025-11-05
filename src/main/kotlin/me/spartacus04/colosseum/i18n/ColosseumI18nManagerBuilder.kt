@@ -1,8 +1,7 @@
 package me.spartacus04.colosseum.i18n
 
 import com.google.gson.reflect.TypeToken
-import me.spartacus04.colosseum.utils.Gson.GSON
-import org.bukkit.plugin.java.JavaPlugin
+import me.spartacus04.colosseum.ColosseumPlugin
 import java.io.File
 import java.util.jar.JarFile
 
@@ -13,13 +12,11 @@ import java.util.jar.JarFile
  * @property plugin The plugin instance.
  */
 @Suppress("unused")
-class ColosseumI18nManagerBuilder(private val plugin: JavaPlugin) {
+class ColosseumI18nManagerBuilder(private val plugin: ColosseumPlugin) {
     private var defaultLanguage: String = "en_US"
     private var staticLanguages: MutableMap<String, Map<String, String>> = mutableMapOf()
     private var dynamicLanguages: MutableMap<String, () -> Map<String, String>> = mutableMapOf()
     private var forceLanguage: String? = null
-    private var debugMode: Boolean = false
-    private var prefix: String = plugin.name
     private var languagesToLower: Boolean = true
 
     /**
@@ -75,7 +72,7 @@ class ColosseumI18nManagerBuilder(private val plugin: JavaPlugin) {
      * @return The builder instance.
      */
     fun loadExternalLanguageFiles(langFile: File, name: String, baseLangFile: String) = apply {
-        dynamicLanguages.put(name) {
+        dynamicLanguages[name] = put@{
             val hashMapType = object : TypeToken<HashMap<String, String>>() {}.type
 
             if(!langFile.exists()) {
@@ -86,7 +83,8 @@ class ColosseumI18nManagerBuilder(private val plugin: JavaPlugin) {
             }
 
             langFile.bufferedReader().use { bufferedReader ->
-                val languageMap : HashMap<String, String> = GSON.fromJson(bufferedReader.readText(), hashMapType)
+
+                val languageMap : HashMap<String, String> = ColosseumPlugin.GSON.fromJson(bufferedReader.readText(), hashMapType)
 
                 return@put languageMap
             }
@@ -117,26 +115,6 @@ class ColosseumI18nManagerBuilder(private val plugin: JavaPlugin) {
     }
 
     /**
-     * Sets the debug mode for the i18n manager.
-     *
-     * @param debugMode The debug mode.
-     * @return The builder instance.
-     */
-    fun debugMode(debugMode: Boolean) = apply {
-        this.debugMode = debugMode
-    }
-
-    /**
-     * Sets the prefix for the plugin.
-     * If not set, the plugin name will be used.
-     *
-     * @param prefix The prefix to use.
-     */
-    fun setPrefix(prefix: String) = apply {
-        this.prefix = prefix
-    }
-
-    /**
      * Sets whether the languages should be converted to lowercase.
      * This is useful for case-insensitive language handling.
      *
@@ -147,15 +125,28 @@ class ColosseumI18nManagerBuilder(private val plugin: JavaPlugin) {
         this.languagesToLower = languagesToLower
     }
 
+    /**
+     * Parses a language file from the plugin jar.
+     *
+     * @param path The path to the language file in the jar.
+     * @param name The name of the language.
+     * @return A pair containing the language name and the language map.
+     */
     private fun parseLanguageFromJar(path: String, name: String): Pair<String, Map<String, String>> {
         plugin.getResource(path)!!.bufferedReader().use {file ->
             val mapType = object : TypeToken<Map<String, String>>() {}.type
-            val languageMap : Map<String, String> = GSON.fromJson(file.readText(), mapType)
+            val languageMap : Map<String, String> = ColosseumPlugin.GSON.fromJson(file.readText(), mapType)
 
             return Pair(name, languageMap)
         }
     }
 
+    /**
+     * Parses a directory of language files from the plugin jar.
+     *
+     * @param path The path to the language directory in the jar.
+     * @return A map containing the language names and their corresponding language maps.
+     */
     private fun parseLanguageDirectoryFromJar(path: String) : MutableMap<String, Map<String, String>> {
         val jarFile = JarFile(File(javaClass.protectionDomain.codeSource.location.path).absolutePath.replace("%20", " "))
 
@@ -190,8 +181,7 @@ class ColosseumI18nManagerBuilder(private val plugin: JavaPlugin) {
             dynamicLanguages,
             defaultLanguage,
             forceLanguage,
-            debugMode,
-            prefix
+            plugin
         )
     }
 }

@@ -1,7 +1,7 @@
 package me.spartacus04.colosseum.config
 
 import com.google.gson.annotations.SerializedName
-import me.spartacus04.colosseum.utils.Gson.GSON
+import me.spartacus04.colosseum.ColosseumPlugin
 import org.bukkit.plugin.Plugin
 
 /**
@@ -37,7 +37,7 @@ open class FileBind(@Transient private val filePath: String, @Transient private 
      */
     fun parseFromJson(text: String) : Boolean {
         try {
-            val obj = GSON.fromJson(text, clazz)
+            val obj = ColosseumPlugin.GSON.fromJson(text, clazz)
 
             obj.javaClass.declaredFields.forEach { field ->
                 field.isAccessible = true
@@ -55,7 +55,7 @@ open class FileBind(@Transient private val filePath: String, @Transient private 
      * Saves the class to the file.
      */
     fun save() {
-        val text = GSON.toJson(this)
+        val text = ColosseumPlugin.GSON.toJson(this)
 
         clazz.declaredFields.forEach { field ->
             field.isAccessible = true

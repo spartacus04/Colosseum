@@ -15,9 +15,6 @@ buildscript {
     }
     dependencies {
         classpath("org.jetbrains.dokka:dokka-base:2.0.0")
-        classpath("com.guardsquare:proguard-gradle:7.7.0") {
-            exclude("com.android.tools.build")
-        }
     }
 }
 
@@ -25,12 +22,13 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.dmulloy2.net/nexus/repository/public/")
+    maven("https://repo.codemc.io/repository/maven-releases/")
+    maven("https://repo.codemc.io/repository/maven-snapshots/")
     maven("https://libraries.minecraft.net")
 }
 
 dependencies {
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.9.5")
     compileOnly("dev.folia:folia-api:1.21.8-R0.1-SNAPSHOT") {
         attributes {
             attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 21)
@@ -39,7 +37,6 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.13.2")
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
-    compileOnly("com.mojang:brigadier:1.0.500")
 }
 
 group = "me.spartacus04.colosseum"
