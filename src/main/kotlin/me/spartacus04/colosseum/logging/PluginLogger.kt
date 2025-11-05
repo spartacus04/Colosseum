@@ -1,5 +1,8 @@
 package me.spartacus04.colosseum.logging
 
+import me.spartacus04.colosseum.ColosseumPlugin
+import me.spartacus04.colosseum.i18n.sendI18nConfirm
+import me.spartacus04.colosseum.i18n.sendI18nInfo
 import org.bukkit.Bukkit
 
 /**
@@ -40,7 +43,7 @@ open class PluginLogger(private val isDebug: Boolean, prefix: String) {
     fun error(message: String) = Bukkit.getConsoleSender().sendMessage(messageFormatter.error(message))
 
     /**
-     * Sends an url to the console.
+     * Sends a url to the console.
      *
      * @param url The url to send.
      */
@@ -56,4 +59,44 @@ open class PluginLogger(private val isDebug: Boolean, prefix: String) {
             Bukkit.getConsoleSender().sendMessage(messageFormatter.debug(message))
         }
     }
+
+    /**
+     * Sends an internationalized confirmation message to the console.
+     *
+     * @param plugin The ColosseumPlugin instance.
+     * @param key The i18n key.
+     * @param placeholders The placeholders to replace in the message.
+     */
+    fun confirmI18n(plugin: ColosseumPlugin, key: String, vararg placeholders: Pair<String, String>) =
+        Bukkit.getConsoleSender().sendI18nConfirm(plugin, key, *placeholders)
+
+    /**
+     * Sends an internationalized information message to the console.
+     *
+     * @param plugin The ColosseumPlugin instance.
+     * @param key The i18n key.
+     * @param placeholders The placeholders to replace in the message.
+     */
+    fun infoI18n(plugin: ColosseumPlugin, key: String, vararg placeholders: Pair<String, String>) =
+        Bukkit.getConsoleSender().sendI18nInfo(plugin, key, *placeholders)
+
+    /**
+     * Sends an internationalized warning message to the console.
+     *
+     * @param plugin The ColosseumPlugin instance.
+     * @param key The i18n key.
+     * @param placeholders The placeholders to replace in the message.
+     */
+    fun warnI18n(plugin: ColosseumPlugin, key: String, vararg placeholders: Pair<String, String>) =
+        Bukkit.getConsoleSender().sendI18nInfo(plugin, key, *placeholders)
+
+    /**
+     * Sends an internationalized error message to the console.
+     *
+     * @param plugin The ColosseumPlugin instance.
+     * @param key The i18n key.
+     * @param placeholders The placeholders to replace in the message.
+     */
+    fun errorI18n(plugin: ColosseumPlugin, key: String, vararg placeholders: Pair<String, String>) =
+        Bukkit.getConsoleSender().sendI18nInfo(plugin, key, *placeholders)
 }

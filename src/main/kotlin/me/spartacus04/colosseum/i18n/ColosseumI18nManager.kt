@@ -21,8 +21,8 @@ import org.bukkit.entity.Player
 class ColosseumI18nManager internal constructor(
     private val staticLanguages: Map<String, Map<String, String>>,
     private val dynamicLanguages: Map<String, () -> Map<String, String>>,
-    private val defaultLanguage: String,
-    private var forcedLanguage: String?,
+    val defaultLanguage: String,
+    var forcedLanguage: String?,
     plugin: ColosseumPlugin
 ) {
     private val cachedDynamicLanguages = mutableMapOf<String, Map<String, String>>()
