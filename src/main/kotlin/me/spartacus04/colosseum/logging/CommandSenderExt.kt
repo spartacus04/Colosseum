@@ -59,9 +59,9 @@ fun CommandSender.sendCustom(plugin: ColosseumPlugin, prefixColor: ChatColor, me
 /**
  * Sends a url message to the command sender.
  *
- * @param messageFormatter The MessageFormatter instance.
+ * @param plugin The ColosseumPlugin instance.
  * @param url The url to send.
  */
-fun CommandSender.sendUrl(messageFormatter: MessageFormatter, url: String) {
-    this.sendMessage(messageFormatter.url(url))
+fun CommandSender.sendUrl(plugin: ColosseumPlugin, url: String) {
+    this.sendMessage(plugin.messageFormatter.url(url))
 }
