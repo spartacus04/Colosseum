@@ -98,10 +98,6 @@ abstract class ColosseumNestedCommand(val plugin: ColosseumPlugin, val name: Str
      * @return A list of possible completions for the command.
      */
     final override fun onTabComplete(sender: CommandSender, command: Command, label: String, args: Array<out String>): List<String>? {
-        args.joinToString("+").let {
-            plugin.colosseumLogger.debug("[${this.commandData.name} ${args.size}] $it")
-        }
-
         if(args.size == 1) {
             val input = args[0]
             return subCommands.map {
