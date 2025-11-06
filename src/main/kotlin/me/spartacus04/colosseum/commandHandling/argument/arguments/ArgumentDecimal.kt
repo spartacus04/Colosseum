@@ -15,7 +15,7 @@ class ArgumentDecimal(private val suggestedValues: List<Double> = emptyList()) :
         return input.toDoubleOrNull() ?: throw MalformedArgumentException(input, "Decimal number")
     }
 
-    override fun suggest(input: String, unused: CommandSender): List<String> {
+    override fun suggest(input: String, sender: CommandSender): List<String> {
         return suggestedValues.map { it.toString() }.filter { it.startsWith(input) }
     }
 

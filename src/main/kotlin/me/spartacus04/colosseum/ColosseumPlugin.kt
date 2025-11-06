@@ -108,6 +108,7 @@ abstract class ColosseumPlugin() : JavaPlugin() {
      */
     fun registerCommands(commandsAction: ColosseumCommandRegistrant.() -> Unit) {
         commandsAction(commandRegistrant)
+        commandRegistrant.register()
     }
 
     /**

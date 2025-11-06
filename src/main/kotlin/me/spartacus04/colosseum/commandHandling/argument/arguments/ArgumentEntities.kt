@@ -19,7 +19,7 @@ import org.bukkit.entity.Player
  * @param onlyPlayers If true, only player entities can be selected.
  */
 open class ArgumentEntities(val singleEntity: Boolean = false, val onlyPlayers: Boolean = false) : Argument<List<Entity>>() {
-    val suggestedValues = mutableListOf<String>("@p", "@r")
+    val suggestedValues = mutableListOf("@p", "@r")
 
     init {
         if(!onlyPlayers) {
@@ -52,25 +52,31 @@ open class ArgumentEntities(val singleEntity: Boolean = false, val onlyPlayers: 
         }
 
         when(input) {
-            "@p" -> if(sender is ConsoleCommandSender) {
-                throw InvalidSenderException(input, "console")
-            } else if(sender is BlockCommandSender) {
-                // select nearest player to the command block
-                val players = sender.block.location.world?.players ?: emptyList()
-
-                if(players.isEmpty()) {
-                    throw IllegalCommandStateException("error-no-players")
+            "@p" -> when (sender) {
+                is ConsoleCommandSender -> {
+                    throw InvalidSenderException(input, "console")
                 }
 
-                return listOf(players.minByOrNull { it.location.distanceSquared(sender.block.location) }!!)
-            } else {
-                return listOf((sender as Player))
+                is BlockCommandSender -> {
+                    // select nearest player to the command block
+                    val players = sender.block.location.world?.players ?: emptyList()
+
+                    if (players.isEmpty()) {
+                        throw IllegalCommandStateException("error-no-players", "Error: No players found")
+                    }
+
+                    return listOf(players.minByOrNull { it.location.distanceSquared(sender.block.location) }!!)
+                }
+
+                else -> {
+                    return listOf((sender as Player))
+                }
             }
 
             "@r" -> {
                 val players = Bukkit.getOnlinePlayers().toList()
                 if(players.isEmpty()) {
-                    throw IllegalCommandStateException("error-no-players")
+                    throw IllegalCommandStateException("error-no-players", "Error: No players online")
                 }
                 return listOf(players.random())
             }
@@ -85,18 +91,24 @@ open class ArgumentEntities(val singleEntity: Boolean = false, val onlyPlayers: 
 
             "@e" -> return Bukkit.getWorlds().flatMap { it.entities }
 
-            "@n" -> if(sender is ConsoleCommandSender) {
-                throw InvalidSenderException(input, "console")
-            } else if(sender is BlockCommandSender) {
-                val entities = sender.block.location.world?.entities ?: emptyList()
-
-                if(entities.isEmpty()) {
-                    throw IllegalCommandStateException("error-no-entities")
+            "@n" -> when (sender) {
+                is ConsoleCommandSender -> {
+                    throw InvalidSenderException(input, "console")
                 }
 
-                return listOf(entities.minByOrNull { it.location.distanceSquared(sender.block.location) }!!)
-            } else {
-                return listOf((sender as Player))
+                is BlockCommandSender -> {
+                    val entities = sender.block.location.world?.entities ?: emptyList()
+
+                    if (entities.isEmpty()) {
+                        throw IllegalCommandStateException("error-no-entities", "Error: No entities found")
+                    }
+
+                    return listOf(entities.minByOrNull { it.location.distanceSquared(sender.block.location) }!!)
+                }
+
+                else -> {
+                    return listOf((sender as Player))
+                }
             }
 
             else -> {

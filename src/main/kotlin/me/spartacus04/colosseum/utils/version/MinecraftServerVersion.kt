@@ -13,7 +13,7 @@ class MinecraftServerVersion(plugin: Plugin) : SemVersion(plugin.server.bukkitVe
     /**
      * The server branding.
      */
-    val branding: String = plugin.server.version
+    val branding: String = plugin.server.name
 
     /**
      * The server revision.

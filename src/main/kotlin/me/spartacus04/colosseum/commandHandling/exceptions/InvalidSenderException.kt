@@ -1,5 +1,7 @@
 package me.spartacus04.colosseum.commandHandling.exceptions
 
+import org.bukkit.ChatColor
+
 /**
  * Exception thrown when a command is executed by an invalid sender.
  *
@@ -7,4 +9,4 @@ package me.spartacus04.colosseum.commandHandling.exceptions
  * @property sender The invalid sender type.
  */
 class InvalidSenderException(val at: String, val sender: String)
-    : Exception("Invalid sender $sender at $at.")
+    : Exception("${ChatColor.RED}Error: Invalid sender '${ChatColor.YELLOW}$sender${ChatColor.RED}' at ${ChatColor.YELLOW}'$at${ChatColor.RED}'.")

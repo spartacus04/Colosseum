@@ -1,5 +1,7 @@
 package me.spartacus04.colosseum.commandHandling.exceptions
 
+import org.bukkit.ChatColor
+
 /**
  * Exception thrown when a command argument is malformed.
  *
@@ -7,4 +9,4 @@ package me.spartacus04.colosseum.commandHandling.exceptions
  * @property expected The expected format or type of the argument.
  */
 class MalformedArgumentException(val at: String, val expected: String)
-    : Exception("Malformed argument at '$at', expected $expected")
+    : Exception("${ChatColor.RED}Malformed argument: expected '${ChatColor.YELLOW}$expected${ChatColor.RED}' at '${ChatColor.YELLOW}$at${ChatColor.RED}'.")

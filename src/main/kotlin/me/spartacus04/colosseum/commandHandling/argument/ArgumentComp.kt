@@ -10,7 +10,7 @@ import org.bukkit.command.CommandSender
  */
 abstract class ArgumentComp<T>(override val consumes: Int) : ParsableArgument<T>() {
     init {
-        require(consumes >= 1) { "consumes must be at least 1" }
+        require(consumes != 0) { "consumes must be at least 1, or < 0 (greedy)" }
     }
 
     /**
@@ -21,10 +21,12 @@ abstract class ArgumentComp<T>(override val consumes: Int) : ParsableArgument<T>
      * @return The parsed argument of type T.
      */
     final override fun parse(input: List<String>, sender: CommandSender): T {
-        if(input.size < consumes && consumes != -1)
+        if(input.size < consumes && consumes > 0)
             throw InsufficientConsumesArgumentCompException(input.size, consumes, input.joinToString(" "))
 
-        return parseComplete(input.take(consumes), sender)
+        // For greedy arguments (consumes < 0), take all input; otherwise take the specified amount
+        val toTake = if (consumes < 0) input else input.take(consumes)
+        return parseComplete(toTake, sender)
     }
 
     /**

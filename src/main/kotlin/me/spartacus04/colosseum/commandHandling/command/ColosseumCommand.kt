@@ -7,7 +7,7 @@ import me.spartacus04.colosseum.commandHandling.argument.ParsableArgument
 import me.spartacus04.colosseum.commandHandling.exceptions.IllegalCommandStateException
 import me.spartacus04.colosseum.commandHandling.exceptions.InsufficientConsumesArgumentCompException
 import me.spartacus04.colosseum.commandHandling.exceptions.InvalidSenderException
-import me.spartacus04.colosseum.i18n.sendI18nError
+import me.spartacus04.colosseum.i18n.trySendI18nError
 import org.bukkit.ChatColor
 import org.bukkit.command.BlockCommandSender
 import org.bukkit.command.Command
@@ -97,10 +97,10 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
             fun build(): CommandData {
                 val argsList = listOf(arguments, optionalArguments).flatten()
 
-                require(argsList.withIndex().any { (index, arg) ->
-                        arg.consumes > 1 && index != argsList.size - 1
-                    }) {
-                    "A greedy string argument must be the last argument."
+                argsList.forEachIndexed { index, arg ->
+                    if(arg.consumes < 0 && index != argsList.size - 1) {
+                        throw IllegalArgumentException("A greedy string argument must be the last argument.")
+                    }
                 }
 
                 return CommandData(
@@ -176,19 +176,20 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
 
         val toParse = args.toMutableList()
 
-        fun handleConsumes(consumes: Int): Int {
-            return if(consumes < 0) Int.MAX_VALUE else consumes
+        fun handleConsumes(arg: ParsableArgument<*>): Int {
+            return if (arg.consumes < 0) toParse.size else arg.consumes
         }
 
-        val parsed = commandData.arguments.map {
+        val parsed = commandData.arguments.map { arg ->
             if(toParse.isEmpty()) {
                 throw MalformedCommandException(args.size, commandData.arguments.sumOf { it.consumes })
             }
 
-            val consumes = handleConsumes(it.consumes)
+            // For greedy arguments (consumes < 0), consume all remaining items
+            val consumes = handleConsumes(arg)
 
             val slice = toParse.slice(0 until consumes)
-            val arg = it.parse(slice, sender)!!
+            val arg = arg.parse(slice, sender)!!
 
             toParse.subList(0, consumes).clear()
 
@@ -200,7 +201,8 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
                 return@map null
             }
 
-            val consumes = handleConsumes(it.consumes)
+            // For greedy arguments (consumes < 0), consume all remaining items
+            val consumes = handleConsumes(it)
 
             val slice = toParse.slice(0 until consumes)
             val arg = it.parse(slice, sender)!!
@@ -220,16 +222,17 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
     /**
      * Generates the command format string for display.
      *
+     * @param label The command label.
      * @return The command format string.
      */
-    fun getCommandFormat(): String {
+    fun getCommandFormat(label: String): String {
         val argsList = listOf(commandData.arguments, commandData.optionalArguments).flatten()
 
         val argsFormat = argsList.mapIndexed { index, argument ->
             argument.getParamFormat(index >= commandData.arguments.size)
         }.joinToString(" ")
 
-        return "/${ChatColor.AQUA}${commandData.name}${ChatColor.RESET} $argsFormat".trimEnd()
+        return "/${ChatColor.AQUA}${label}${ChatColor.RESET} $argsFormat".trimEnd()
     }
 
     /**
@@ -247,7 +250,7 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
         val doesNotHaveAllPerms = commandData.permissions.any { !sender.hasPermission(it) }
 
         if(doesNotHaveAllPerms) {
-            sender.sendI18nError(plugin, "error-no-permission")
+            sender.trySendI18nError(plugin, "error-no-permission", "You do not have permission to use this command.")
             return true
         }
 
@@ -263,36 +266,35 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
                     is ConsoleCommandSender -> executeConsole(CommandContext(sender, parsed))
                     is BlockCommandSender -> executeCommandBlock(CommandContext(sender, parsed))
                 }
-
-                return true
             }
+
+            return true
         } catch (exception: MalformedCommandException) {
-            sender.sendI18nError(plugin, "error-malformed-command",
+            sender.trySendI18nError(plugin, "error-malformed-command", exception.message!!,
                 "got" to exception.got.toString(),
                 "expected" to exception.expected.toString()
             )
         } catch (exception: MalformedArgumentException) {
-            sender.sendI18nError(plugin, "error-malformed-argument",
+            sender.trySendI18nError(plugin, "error-malformed-argument", exception.message!!,
                 "expected" to exception.expected,
                 "at" to exception.at
             )
         } catch (exception: InsufficientConsumesArgumentCompException) {
-            sender.sendI18nError(plugin, "error-insufficient-consumes",
+            sender.trySendI18nError(plugin, "error-insufficient-consumes", exception.message!!,
                 "expected" to exception.expected.toString(),
                 "at" to exception.at,
                 "got" to exception.got.toString()
             )
         } catch (exception: InvalidSenderException) {
-            sender.sendI18nError(plugin, "error-invalid-sender-at",
+            sender.trySendI18nError(plugin, "error-invalid-sender-at", exception.message!!,
                 "sender" to exception.sender,
                 "at" to exception.at
             )
-        } catch (exception: IllegalCommandStateException) {
-            // error-no-players, error-no-entities
-            sender.sendI18nError(plugin, exception.key)
+        } catch (exception: IllegalCommandStateException) { // error-no-players, error-no-entities
+            sender.trySendI18nError(plugin, exception.key, exception.message!!)
         }
 
-        sender.sendMessage(getCommandFormat())
+        sender.sendMessage(getCommandFormat(label))
 
         return true
     }
@@ -313,20 +315,38 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
     ): List<String>? {
         val allArgs = listOf(commandData.arguments, commandData.optionalArguments).flatten()
 
-        var consumed = 0
-        for(argument in allArgs) {
-            val start = consumed
-            val end = consumed + if(argument.consumes < 0) Int.MAX_VALUE else argument.consumes
+        var argIndex = 0
+        var argPosition = 0
 
-            if(args.size in start until end) {
-                val slice = args.slice(start until args.size.coerceAtLeast(end))
-                return argument.suggest(slice, sender)
+        for (arg in allArgs) {
+            // For greedy arguments, check if we've reached this position
+            if (arg.consumes < 0) {
+                if (args.size >= argPosition) {
+                    argIndex = allArgs.indexOf(arg)
+                }
+                break
             }
 
-            consumed = end
+            val consumes = arg.consumes
+
+            if (args.size - argPosition <= consumes) {
+                break
+            }
+
+            argPosition += consumes
+            argIndex++
         }
 
-        return emptyList()
+        val currentArg = allArgs.getOrNull(argIndex) ?: return emptyList()
+
+        // For greedy arguments, provide all remaining args; otherwise limit by consumes
+        val slice = if (currentArg.consumes < 0) {
+            args.drop(argPosition)
+        } else {
+            args.slice(argPosition until minOf(argPosition + currentArg.consumes, args.size))
+        }
+
+        return currentArg.suggest(slice, sender)
     }
 
     /**
@@ -335,7 +355,7 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
      * @param ctx The command context.
      */
     open fun executePlayer(ctx: CommandContext<Player>) {
-        ctx.sender.sendI18nError(plugin, "error-invalid-sender",
+        ctx.sender.trySendI18nError(plugin, "error-invalid-sender", "Error: This command cannot be executed by players.",
             "sender" to "player"
         )
     }
@@ -346,7 +366,7 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
      * @param ctx The command context.
      */
     open fun executeConsole(ctx: CommandContext<ConsoleCommandSender>) {
-        ctx.sender.sendI18nError(plugin, "error-invalid-sender",
+        ctx.sender.trySendI18nError(plugin, "error-invalid-sender", "Error: This command cannot be executed by the console.",
             "sender" to "console"
         )
     }
@@ -357,7 +377,7 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
      * @param ctx The command context.
      */
     open fun executeCommandBlock(ctx: CommandContext<BlockCommandSender>) {
-        ctx.sender.sendI18nError(plugin, "error-invalid-sender",
+        ctx.sender.trySendI18nError(plugin, "error-invalid-sender", "Error: This command cannot be executed by command blocks.",
             "sender" to "command block"
         )
     }

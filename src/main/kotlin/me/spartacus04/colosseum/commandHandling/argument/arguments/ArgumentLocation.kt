@@ -28,7 +28,7 @@ class ArgumentLocation : ArgumentComp<Location>(3) {
             input: String,
             sender: CommandSender
         ): Pair<LocationPartType, Double> {
-            var locationPartType = if(sender is ConsoleCommandSender) {
+            val locationPartType = if(sender is ConsoleCommandSender) {
                 LocationPartType.ABSOLUTE
             } else if(input.startsWith("~")) {
                 LocationPartType.RELATIVE

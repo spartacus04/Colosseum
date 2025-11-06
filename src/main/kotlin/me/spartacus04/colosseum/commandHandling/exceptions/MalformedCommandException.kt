@@ -1,5 +1,7 @@
 package me.spartacus04.colosseum.commandHandling.exceptions
 
+import org.bukkit.ChatColor
+
 /**
  * Exception thrown when a command is malformed due to incorrect number of arguments.
  *
@@ -7,4 +9,4 @@ package me.spartacus04.colosseum.commandHandling.exceptions
  * @property expected The number of arguments expected.
  */
 class MalformedCommandException(val got: Int, val expected: Int)
-    : Exception("Malformed command: expected $expected arguments, got $got.")
+    : Exception("${ChatColor.RED}Malformed command: expected '${ChatColor.YELLOW}$expected${ChatColor.RED}' arguments, got '${ChatColor.YELLOW}$got${ChatColor.RED}'.")

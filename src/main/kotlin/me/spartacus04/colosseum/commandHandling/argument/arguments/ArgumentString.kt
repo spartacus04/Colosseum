@@ -22,11 +22,7 @@ open class ArgumentString(val suggestions: List<String> = emptyList(), val isGre
         input: List<String>,
         sender: CommandSender
     ): List<String> {
-        return if(isGreedy) {
-            emptyList()
-        } else {
-            suggestions.filter { it.startsWith(input[0]) }
-        }
+        return suggestions.filter { it.startsWith(input.joinToString(" ")) }
     }
 
     override fun getParamFormat(isOptional: Boolean): String =

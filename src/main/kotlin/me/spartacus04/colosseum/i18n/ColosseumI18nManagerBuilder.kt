@@ -152,9 +152,13 @@ class ColosseumI18nManagerBuilder(private val plugin: ColosseumPlugin) {
 
         return jarFile.use { jar ->
             jar.entries().asSequence().filter { it.name.startsWith(path) && it.name.endsWith(".json") }.map {
-                val langName = it.name.replaceFirst(path, "")
+                var langName = it.name.replaceFirst(path, "")
 
-                parseLanguageFromJar("$path$langName", langName.replace(".json", ""))
+                if(langName.startsWith("/")) {
+                    langName = langName.substring(1)
+                }
+
+                parseLanguageFromJar("$path/$langName", langName.replace(".json", ""))
             }.associateTo(mutableMapOf()) { it }
         }
     }

@@ -2,7 +2,8 @@ package me.spartacus04.colosseum.commandHandling.command
 
 import me.spartacus04.colosseum.ColosseumPlugin
 import me.spartacus04.colosseum.commandHandling.argument.arguments.ArgumentString
-import me.spartacus04.colosseum.i18n.sendI18nError
+import me.spartacus04.colosseum.commandHandling.exceptions.MalformedArgumentException
+import me.spartacus04.colosseum.i18n.trySendI18nError
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 
@@ -62,7 +63,7 @@ abstract class ColosseumNestedCommand(val plugin: ColosseumPlugin, val name: Str
      */
     final override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         val subCommandName = args.getOrNull(0) ?: run {
-            sender.sendI18nError(plugin, "error-malformed-argument",
+            sender.trySendI18nError(plugin, "error-malformed-argument", MalformedArgumentException(label, "sub command").message!!,
                 "expected" to "sub command",
                 "at" to label
             )
@@ -72,7 +73,7 @@ abstract class ColosseumNestedCommand(val plugin: ColosseumPlugin, val name: Str
         val subCommand = subCommands.find {
             it.commandData.subCommandName == subCommandName || it.commandData.name == subCommandName
         } ?: run {
-            sender.sendI18nError(plugin, "error-malformed-argument",
+            sender.trySendI18nError(plugin, "error-malformed-argument", MalformedArgumentException(subCommandName, "valid sub command").message!!,
                 "expected" to "valid sub command",
                 "at" to subCommandName
             )
@@ -81,7 +82,7 @@ abstract class ColosseumNestedCommand(val plugin: ColosseumPlugin, val name: Str
 
         val subLabel = subCommand.commandData.subCommandName ?: subCommand.commandData.name
 
-        subCommand.onCommand(sender, command, subLabel, args.drop(1).toTypedArray())
+        subCommand.onCommand(sender, command, "$label $subLabel", args.drop(1).toTypedArray())
 
         return true
     }
@@ -97,13 +98,26 @@ abstract class ColosseumNestedCommand(val plugin: ColosseumPlugin, val name: Str
      * @return A list of possible completions for the command.
      */
     final override fun onTabComplete(sender: CommandSender, command: Command, label: String, args: Array<out String>): List<String>? {
+        args.joinToString("+").let {
+            plugin.colosseumLogger.debug("[${this.commandData.name} ${args.size}] $it")
+        }
+
+        if(args.size == 1) {
+            val input = args[0]
+            return subCommands.map {
+                it.commandData.subCommandName ?: it.commandData.name
+            }.filter { it.startsWith(input) }
+        }
+
         val subCommandName = args.getOrNull(0) ?: return emptyList()
+
         val subCommand = subCommands.find {
             it.commandData.subCommandName == subCommandName || it.commandData.name == subCommandName
         } ?: return emptyList()
 
         val subLabel = subCommand.commandData.subCommandName ?: subCommand.commandData.name
 
-        return subCommand.onTabComplete(sender, command, subLabel, args.drop(1).toTypedArray())
+        val subArgs = args.copyOfRange(1, args.size)
+        return subCommand.onTabComplete(sender, command, "$label $subLabel", subArgs)
     }
 }
