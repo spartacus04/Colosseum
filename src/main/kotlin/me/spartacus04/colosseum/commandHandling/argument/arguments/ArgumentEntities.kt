@@ -76,7 +76,7 @@ open class ArgumentEntities(val singleEntity: Boolean = false, val onlyPlayers: 
             "@r" -> {
                 val players = Bukkit.getOnlinePlayers().toList()
                 if(players.isEmpty()) {
-                    throw IllegalCommandStateException("error-no-players", "Error: No players online")
+                    throw IllegalCommandStateException("error-no-players", "Error: No players found")
                 }
                 return listOf(players.random())
             }
