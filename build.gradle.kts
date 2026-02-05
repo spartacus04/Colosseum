@@ -28,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.github.retrooper:packetevents-spigot:2.11.0")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.11.2")
     compileOnly("dev.folia:folia-api:1.21.11-R0.1-SNAPSHOT") {
         attributes {
             attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 21)
