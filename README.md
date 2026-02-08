@@ -12,7 +12,7 @@ It adds a few features such as:
 - [x] Singleton GSON instance
 - [x] Universal Scheduler for Spigot/Paper/Folia
 - [x] Minecraft version utilities
-- [ ] GUI system
+- [x] GUI system
 
 You can find all documentation [here](https://github.com/spartacus04/Colosseum/wiki)!
 
