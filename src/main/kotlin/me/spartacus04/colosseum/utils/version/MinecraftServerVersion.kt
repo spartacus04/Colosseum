@@ -39,16 +39,16 @@ class MinecraftServerVersion(plugin: Plugin) : SemVersion(plugin.server.bukkitVe
         get() = branding.contains("Folia")
 
     /**
-     * Whether the server is running a legacy version (1.12.2 or older).
+     * Whether the server is running a legacy version (1.21.1 or older).
      */
     val isLegacy: Boolean
-        get() = compareTo("1.13") < 0
+        get() = compareTo("1.21.1") < 0
 
     /**
-     * Whether the server is running a modern version (1.13 or newer).
+     * Whether the server is running a modern version (26.1 or newer).
      */
     val isModern: Boolean
-        get() = compareTo("1.13") >= 0
+        get() = compareTo("21.1") >= 0
 
     /**
      * Checks if the current version is compatible with the given class.
