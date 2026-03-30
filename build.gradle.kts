@@ -4,7 +4,7 @@ plugins {
     java
     kotlin("jvm") version "2.3.10"
 
-    id("org.jetbrains.dokka") version "2.1.0"
+    id("org.jetbrains.dokka") version "2.2.0"
 
     `maven-publish`
 }
@@ -14,7 +14,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.dokka:dokka-base:2.1.0")
+        classpath("org.jetbrains.dokka:dokka-base:2.2.0")
     }
 }
 
