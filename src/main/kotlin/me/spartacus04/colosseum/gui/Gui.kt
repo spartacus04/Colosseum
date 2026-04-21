@@ -13,9 +13,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryDragEvent
-import org.bukkit.event.inventory.InventoryType
 import org.bukkit.inventory.ItemStack
-import kotlin.math.min
 
 /**
  * A class representing a GUI in the Colosseum plugin. This class is responsible for managing the inventory, handling clicks and drags, and refreshing the items in the GUI when necessary.
@@ -32,7 +30,7 @@ import kotlin.math.min
  * @param plugin The instance of the ColosseumPlugin, used for registering listeners and scheduling tasks related to the GUI.
  * @param allowClose A boolean flag that determines whether the GUI can be closed by the player.
  */
-class Gui private constructor(
+open class Gui private constructor(
     title: String? = null,
     size: Int = 3,
     val player: Player,
@@ -417,9 +415,9 @@ class Gui private constructor(
                 arrayOfNulls<AbstractItemProvider>(9)
             }
 
-            for(y in 0 ..< structure.size) {
+            for((y, element) in structure.withIndex()) {
                 for(x in 0 .. 8) {
-                    val char = structure[y][x]
+                    val char = element[x]
 
                     if(itemBindings.containsKey(char)) {
                         itemStructure[y][x] = itemBindings[char]!!
@@ -440,8 +438,8 @@ class Gui private constructor(
             }
 
             for(x in 0 .. 8) {
-                for(y in 0 ..< structure.size) {
-                    val char = structure[y][x]
+                for((y, element) in structure.withIndex()) {
+                    val char = element[x]
 
                     if(inventoryBindings.contains(char) && inventoryBindings[char]!!.directionMarker == DirectionMarker.VERTICAL) {
                         val invData = inventoryBindings[char]!!
