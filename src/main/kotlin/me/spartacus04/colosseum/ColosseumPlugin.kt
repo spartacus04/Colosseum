@@ -42,11 +42,6 @@ abstract class ColosseumPlugin() : JavaPlugin() {
     val serverVersion = MinecraftServerVersion(this)
 
     /**
-     * The Minecraft server revision the plugin is running on.
-     */
-    val serverRevision = serverVersion.revision
-
-    /**
      * The command registrant for the plugin. Used to register commands.
      */
     val commandRegistrant = ColosseumCommandRegistrant(this)

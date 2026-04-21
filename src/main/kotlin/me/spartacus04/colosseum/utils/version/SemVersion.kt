@@ -12,7 +12,7 @@ open class SemVersion(private val versions: List<Int>) {
      *
      * @param version The version string.
      */
-    constructor(version: String) : this(version.split(".").map { it.toInt() })
+    constructor(version: String) : this(version.split(".").map { it.toIntOrNull() ?: -1 })
 
     /**
      * Compares this version to another version. If the number of components in the versions differ, the version with fewer components is considered less than the other.

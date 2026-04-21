@@ -16,11 +16,6 @@ class MinecraftServerVersion(plugin: Plugin) : SemVersion(plugin.server.bukkitVe
     val branding: String = plugin.server.name
 
     /**
-     * The server revision.
-     */
-    val revision: MinecraftRevisions = MinecraftRevisions.fromVersion(this)
-
-    /**
      * Whether the server is running Paper.
      */
     val isPaper: Boolean
@@ -50,28 +45,6 @@ class MinecraftServerVersion(plugin: Plugin) : SemVersion(plugin.server.bukkitVe
     val isModern: Boolean
         get() = compareTo("21.1") >= 0
 
-    /**
-     * Checks if the current version is compatible with the given class.
-     *
-     * @param clazz The class to check against.
-     *
-     * @return True if the current version is compatible, false otherwise.
-     */
-    fun isRevisionAnnotationCompatible(clazz: Class<*>) : Boolean {
-        val annotation = clazz.getAnnotation(RevisionCompatibilityRange::class.java)
-
-        if (annotation != null) {
-            return this >= annotation.since.version && this <= annotation.until.version
-        }
-
-        val annotationMin = clazz.getAnnotation(RevisionCompatibilityMin::class.java)
-
-        if (annotationMin != null) {
-            return this >= annotationMin.since.version
-        }
-
-        return true
-    }
 
     fun isVersionAnnotationCompatible(clazz: Class<*>) : Boolean {
         val annotation = clazz.getAnnotation(VersionCompatibilityRange::class.java)

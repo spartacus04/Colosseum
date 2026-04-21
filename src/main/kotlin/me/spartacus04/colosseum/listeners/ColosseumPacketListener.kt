@@ -11,7 +11,7 @@ import me.spartacus04.colosseum.utils.version.MinecraftServerVersion
  */
 open class ColosseumPacketListener(private val plugin: ColosseumPlugin) : PacketListener, InterfaceColosseumListener {
     override fun register() {
-        if(MinecraftServerVersion(plugin).isRevisionAnnotationCompatible(this::class.java)) {
+        if(MinecraftServerVersion(plugin).isVersionAnnotationCompatible(this::class.java)) {
             PacketEvents.getAPI().eventManager.registerListener(this.asAbstract(PacketListenerPriority.NORMAL))
         } else {
             plugin.colosseumLogger.info("Could not register packet listener ${this::class.java.simpleName} due to version incompatibility.")

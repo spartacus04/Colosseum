@@ -57,7 +57,7 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
             /**
              * Initialize the builder by retrieving command metadata from plugin.yml.
              */
-            val command = plugin.getCommand("name")
+            val command = plugin.getCommand(name)
 
             /**
              * Properties for building CommandData.
@@ -253,7 +253,7 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
      * @return true if the command was handled, false otherwise.
      */
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-        val doesNotHaveAllPerms = commandData.permissions.any { !sender.hasPermission(it) }
+        val doesNotHaveAllPerms = !commandData.permissions.all { sender.hasPermission(it) }
 
         if(doesNotHaveAllPerms) {
             sender.trySendI18nError(plugin, "error-no-permission", "You do not have permission to use this command.")

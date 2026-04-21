@@ -62,6 +62,13 @@ abstract class ColosseumNestedCommand(val plugin: ColosseumPlugin, val name: Str
      * @param args The command arguments.
      */
     final override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+        val doesNotHaveAllPerms = !commandData.permissions.all { sender.hasPermission(it) }
+
+        if(doesNotHaveAllPerms) {
+            sender.trySendI18nError(plugin, "error-no-permission", "You do not have permission to use this command.")
+            return true
+        }
+
         val subCommandName = args.getOrNull(0) ?: run {
             sender.trySendI18nError(plugin, "error-malformed-argument", MalformedArgumentException(label, "sub command").message!!,
                 "expected" to "sub command",
