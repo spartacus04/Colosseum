@@ -77,7 +77,7 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
             /**
              * The set of permissions required to execute the command.
              */
-            var permissions: Set<String> = emptySet()
+            var permissions: HashSet<String> = HashSet()
 
             /**
              * The list of required arguments for the command.
@@ -100,6 +100,12 @@ abstract class ColosseumCommand(private val plugin: ColosseumPlugin) : CommandEx
                 argsList.forEachIndexed { index, arg ->
                     if(arg.consumes < 0 && index != argsList.size - 1) {
                         throw IllegalArgumentException("A greedy string argument must be the last argument.")
+                    }
+                }
+
+                command?.permission.let {
+                    if(it != null) {
+                        permissions.add(it)
                     }
                 }
 

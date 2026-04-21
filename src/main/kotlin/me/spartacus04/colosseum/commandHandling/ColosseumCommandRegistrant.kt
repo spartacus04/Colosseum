@@ -58,8 +58,9 @@ class ColosseumCommandRegistrant(private val plugin: ColosseumPlugin) {
             if(plugin.serverVersion.isVersionAnnotationCompatible(command)) {
                 val commandInst = command.constructors.first { it.parameters.size == 1 }.newInstance(plugin) as ColosseumCommand
 
-                plugin.getCommand(commandInst.commandData.name)!!.setExecutor(commandInst)
-                plugin.getCommand(commandInst.commandData.name)!!.tabCompleter = commandInst
+                val command = plugin.getCommand(commandInst.commandData.name)!!
+                command.setExecutor(commandInst)
+                command.tabCompleter = commandInst
 
                 registeredCommands.add(commandInst)
             } else {
