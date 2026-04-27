@@ -10,6 +10,7 @@ import me.spartacus04.colosseum.gui.virtualInventory.VirtualInventoryInteractEve
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.inventory.InventoryAction
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.inventory.InventoryDragEvent
@@ -211,6 +212,19 @@ open class Gui private constructor(
         val slot = clickEvent.rawSlot
 
         if(slot < 0) return
+
+        if (clickEvent.action == InventoryAction.MOVE_TO_OTHER_INVENTORY && slot >= inventory.size) {
+            val event = VirtualInventoryInteractEvent(clickEvent, this)
+            val virtualInvs = event.slotChanges.map { it.virtualInventory }.distinct()
+
+            if (virtualInvs.size == 1) {
+                virtualInvs[0].handleClick(event)
+            } else {
+                clickEvent.isCancelled = true
+            }
+
+            return
+        }
 
         if(slot < structure.size && structure[slot] != null) {
             if(structure[slot] is VirtualInventory.VirtualInventoryItemProvider) {
@@ -476,7 +490,6 @@ open class Gui private constructor(
         @EventHandler
         fun onClick(event: InventoryClickEvent) {
             if (event.whoClicked != gui.player) return
-            if (event.rawSlot >= gui.inventory.size) return
             if (event.view.topInventory != gui.inventory) return
 
             gui.onClick(event)
