@@ -37,7 +37,7 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.14.0")
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
-    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
 }
 
 group = "me.spartacus04.colosseum"
