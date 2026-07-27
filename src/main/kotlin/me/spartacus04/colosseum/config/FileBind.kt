@@ -2,7 +2,6 @@ package me.spartacus04.colosseum.config
 
 import com.google.gson.annotations.SerializedName
 import me.spartacus04.colosseum.ColosseumPlugin
-import org.bukkit.plugin.Plugin
 
 /**
  * The class `FileBind` is used to bind a file to a class.
@@ -10,7 +9,7 @@ import org.bukkit.plugin.Plugin
  * @param filePath The path of the file.
  * @param clazz The class to bind the file to.
  */
-open class FileBind(@Transient private val filePath: String, @Transient private val clazz: Class<*>, @Transient private val plugin: Plugin) {
+open class FileBind(@Transient private val filePath: String, @Transient private val clazz: Class<*>, @Transient private val plugin: ColosseumPlugin) {
     /**
      * Reads the file and binds it to the class.
      */
@@ -37,7 +36,7 @@ open class FileBind(@Transient private val filePath: String, @Transient private 
      */
     fun parseFromJson(text: String) : Boolean {
         try {
-            val obj = ColosseumPlugin.GSON.fromJson(text, clazz)
+            val obj = plugin.gson.fromJson(text, clazz)
 
             obj.javaClass.declaredFields.forEach { field ->
                 field.isAccessible = true
@@ -55,7 +54,7 @@ open class FileBind(@Transient private val filePath: String, @Transient private 
      * Saves the class to the file.
      */
     fun save() {
-        val text = ColosseumPlugin.GSON.toJson(this)
+        val text = plugin.gson.toJson(this)
 
         clazz.declaredFields.forEach { field ->
             field.isAccessible = true

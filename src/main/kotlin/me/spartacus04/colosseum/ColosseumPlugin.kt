@@ -1,9 +1,11 @@
 package me.spartacus04.colosseum
 
+import com.google.gson.FieldNamingStrategy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.Strictness
 import me.spartacus04.colosseum.commandHandling.ColosseumCommandRegistrant
+import me.spartacus04.colosseum.config.ConfigField
 import me.spartacus04.colosseum.i18n.ColosseumI18nManager
 import me.spartacus04.colosseum.i18n.ColosseumI18nManagerBuilder
 import me.spartacus04.colosseum.logging.MessageFormatter
@@ -14,6 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
+import java.lang.reflect.Field
 import java.net.URI
 import java.util.logging.Logger
 
@@ -107,15 +110,25 @@ abstract class ColosseumPlugin() : JavaPlugin() {
     }
 
     /**
-     * The singleton GSON instance for the plugin.
+     * The singleton GSON instance for the plugin. Lazily built via [buildGson].
      */
-    val gson: Gson
-        get() = GSON
+    val gson : Gson by lazy { buildGson() }
 
-    companion object {
-        /**
-         * Singleton GSON instance for the plugin.
-         */
-        val GSON: Gson = GsonBuilder().setStrictness(Strictness.LENIENT).setPrettyPrinting().create()
+    /**
+     * Builds the Gson instance for this plugin.
+     * By default, it applies lenient parsing and pretty printing.
+     * Subclasses that need custom type adapters should override this with `super.buildGson { ... }`.
+     */
+    open fun buildGson(block: GsonBuilder.() -> Unit = {}) : Gson {
+        return GsonBuilder()
+            .setStrictness(Strictness.LENIENT)
+            .setPrettyPrinting()
+            .setFieldNamingStrategy { field ->
+                val configField = field.getAnnotation(ConfigField::class.java)
+
+                configField?.name ?: field.name
+            }
+            .apply(block)
+            .create()
     }
 }

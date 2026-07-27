@@ -84,7 +84,7 @@ class ColosseumI18nManagerBuilder(private val plugin: ColosseumPlugin) {
 
             langFile.bufferedReader().use { bufferedReader ->
 
-                val languageMap : HashMap<String, String> = ColosseumPlugin.GSON.fromJson(bufferedReader.readText(), hashMapType)
+                val languageMap : HashMap<String, String> = plugin.gson.fromJson(bufferedReader.readText(), hashMapType)
 
                 return@put languageMap
             }
@@ -135,7 +135,7 @@ class ColosseumI18nManagerBuilder(private val plugin: ColosseumPlugin) {
     private fun parseLanguageFromJar(path: String, name: String): Pair<String, Map<String, String>> {
         plugin.getResource(path)!!.bufferedReader().use {file ->
             val mapType = object : TypeToken<Map<String, String>>() {}.type
-            val languageMap : Map<String, String> = ColosseumPlugin.GSON.fromJson(file.readText(), mapType)
+            val languageMap : Map<String, String> = plugin.gson.fromJson(file.readText(), mapType)
 
             return Pair(name, languageMap)
         }
