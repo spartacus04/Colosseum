@@ -57,5 +57,5 @@ class MessageFormatter(private val prefix: String) {
      *
      * @param url The url
      */
-    fun url(url: String) = "§6[§2$url§6]"
+    fun url(url: String) = "§6[§2 $url §6]"
 }
