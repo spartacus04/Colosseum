@@ -148,7 +148,7 @@ class ColosseumI18nManagerBuilder(private val plugin: ColosseumPlugin) {
      * @return A map containing the language names and their corresponding language maps.
      */
     private fun parseLanguageDirectoryFromJar(path: String) : MutableMap<String, Map<String, String>> {
-        val jarFile = JarFile(File(javaClass.protectionDomain.codeSource.location.path).absolutePath.replace("%20", " "))
+        val jarFile = JarFile(File(javaClass.protectionDomain.codeSource.location.toURI()))
 
         return jarFile.use { jar ->
             jar.entries().asSequence().filter { it.name.startsWith(path) && it.name.endsWith(".json") }.map {
