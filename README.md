@@ -1,7 +1,7 @@
-# Colosseum API
+# Colosseum framework
 >A Kotlin first Spigot/Paper/Folia plugin framework
 
-This API is designed to make it easier to create plugins for Spigot, Paper and Folia.
+This framework is designed to make it easier to create plugins for Spigot, Paper and Folia.
 It adds a few features such as:
 - [x] Command handling
 - [x] Event handling
